@@ -2,6 +2,7 @@
 
 Builds a two-page PDF tear-sheet for a mutual fund or ETF against a benchmark:
 monthly risk/return analytics, charts, and an AI-written due-diligence memo.
+Use it from the command line or through an interactive Streamlit web app.
 
 ```
 data_loader.py    yfinance adjusted prices -> month-end returns; FRED TB3MS risk-free rate; macro snapshot
@@ -9,6 +10,7 @@ analytics.py      CAGR, volatility, drawdown/recovery, Sharpe, Sortino, IR, alph
 ai_commentary.py  free open-model LLM commentary (4 sections, JSON) with a rule-based fallback
 pdf_generator.py  ReportLab 2-page tear-sheet
 main.py           interactive CLI with progress steps
+app.py            Streamlit web app: dashboard, commentary, metrics table, PDF download
 ```
 
 ## 📄 Sample Report Output
@@ -22,7 +24,8 @@ main.py           interactive CLI with progress steps
 ## Setup
 
 ```sh
-cd ~/manager-tearsheet
+git clone https://github.com/sterlingsilver251-web/quant-manager-tearsheet.git
+cd quant-manager-tearsheet
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -48,6 +51,34 @@ The app uses Groq if `GROQ_API_KEY` is set, otherwise a running Ollama server. O
 `qwen2.5:7b` on Ollama). `custom` takes any OpenAI-compatible endpoint via `LLM_BASE_URL` and `LLM_API_KEY`.
 
 ## Run
+
+### Web app (Streamlit)
+
+```sh
+streamlit run app.py
+```
+
+Opens at http://localhost:8501. Enter a fund ticker, benchmark, and time horizon (1, 3, 5, or
+10 years) in the sidebar and click **Generate Tear-Sheet** to get:
+
+- **KPI cards**: annualized return, excess return / alpha, Sharpe ratio, max drawdown
+- **Performance & Risk** tab: growth of $10,000, drawdown, and monthly returns heatmap
+- **Due Diligence Commentary** tab: the four-section memo and recommended portfolio role
+- **Detailed Metrics** tab: every computed metric, plus a CSV of the monthly returns
+- **Download PDF Tear-Sheet**: the same two-page report the CLI produces
+
+**Groq key in the web app:** each visitor can paste their own free key in the sidebar (it is
+used only for that session and never saved to disk). To provide a key for everyone, put it in
+`.streamlit/secrets.toml`, which is git-ignored, or set `GROQ_API_KEY` on the server:
+
+```toml
+# .streamlit/secrets.toml   (never commit this file)
+GROQ_API_KEY = "gsk_..."
+```
+
+The server-side key is never displayed in the page.
+
+### Command line
 
 ```sh
 python main.py                             # prompts for fund, benchmark, years

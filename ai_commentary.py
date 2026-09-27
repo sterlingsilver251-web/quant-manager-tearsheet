@@ -196,11 +196,17 @@ def _ollama_running(base_url: str) -> bool:
         return False
 
 
-def resolve_provider() -> tuple[str, str, str, str] | str:
+def resolve_provider(groq_api_key: str | None = None) -> tuple[str, str, str, str] | str:
     """Return (name, base_url, api_key, model), or a reason string if none is usable.
 
+    An explicit `groq_api_key` (e.g. typed into the web app) selects Groq for this
+    call only, without touching process-wide environment variables.
     Env overrides: LLM_PROVIDER (groq | ollama | custom), LLM_MODEL, LLM_BASE_URL, LLM_API_KEY.
     """
+    if groq_api_key:
+        base_url, _, default_model = PROVIDERS["groq"]
+        return "groq", base_url, groq_api_key, os.environ.get("LLM_MODEL") or default_model
+
     choice = os.environ.get("LLM_PROVIDER", "").strip().lower()
     if not choice:
         if os.environ.get("GROQ_API_KEY"):
@@ -238,9 +244,10 @@ def _parse_json_object(text: str) -> dict:
     return json.loads(text[start:end + 1])
 
 
-def generate_commentary(context: dict, metrics: dict, macro: dict[str, str]) -> CommentaryResult:
+def generate_commentary(context: dict, metrics: dict, macro: dict[str, str],
+                        groq_api_key: str | None = None) -> CommentaryResult:
     """Return LLM commentary, or the template fallback. Never raises for API problems."""
-    resolved = resolve_provider()
+    resolved = resolve_provider(groq_api_key)
     if isinstance(resolved, str):
         return template_commentary(context, metrics, resolved)
     provider, base_url, api_key, model = resolved
