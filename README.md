@@ -11,6 +11,14 @@ pdf_generator.py  ReportLab 2-page tear-sheet
 main.py           interactive CLI with progress steps
 ```
 
+## 📄 Sample Report Output
+
+5-year tear-sheet for `AGTHX` (American Funds Growth Fund of America) against `SPY`. Click the preview to open the full two-page PDF.
+
+[![Sample Tear-Sheet Preview](assets/preview.png)](assets/sample_tearsheet.pdf)
+
+> 🔗 **[View or Download Full Sample PDF Report (assets/sample_tearsheet.pdf)](assets/sample_tearsheet.pdf)**
+
 ## Setup
 
 ```sh
